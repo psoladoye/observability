@@ -1,7 +1,6 @@
-namespace web.Metrics
+namespace web.Metrics;
+
+public interface IControllerMetrics
 {
-    public interface IControllerMetrics
-    {
         
-    }
 }
