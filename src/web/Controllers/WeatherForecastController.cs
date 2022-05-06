@@ -21,6 +21,7 @@ public class WeatherForecastController : ControllerBase
     [HttpGet]
     public IEnumerable<WeatherForecast> Get()
     {
+        _logger.LogInformation("Executing {Method} in Controller", nameof(Get));
         var rng = new Random();
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

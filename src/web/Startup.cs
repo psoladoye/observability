@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 using monitoring;
+using Serilog;
 using web.Metrics;
 
 namespace web;
@@ -32,20 +33,17 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "web v1");
-                c.RoutePrefix = string.Empty;
-            });
         }
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "web v1");
+            c.RoutePrefix = string.Empty;
+        });
 
-        app.UseHttpsRedirection();
-
+        app.UseSerilogRequestLogging();
         app.UseRouting();
-
         app.UseAuthorization();
-
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 }

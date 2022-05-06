@@ -29,7 +29,7 @@ public static class ConfigureLogging
             {
                 options.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService($"{Assembly.GetExecutingAssembly().GetName().Name ?? "unknown_dotnet"}"));
-                options.AddConsoleExporter();
+                // options.AddConsoleExporter();
                 options.AddOtlpExporter(opt => opt.Endpoint
                     = new Uri(otlpOptions.Endpoint));
             });

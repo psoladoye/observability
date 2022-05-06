@@ -39,7 +39,6 @@ public static class ConfigureOpenTelemetry
                 };
             });
             builder.AddSource("*");
-            // builder.AddConsoleExporter();
             builder.AddOtlpExporter(opt => opt.Endpoint 
                 = new Uri(otlpOptions.Endpoint));
         });
@@ -48,7 +47,6 @@ public static class ConfigureOpenTelemetry
         {
             builder.AddHttpClientInstrumentation();
             builder.AddMeter("*");
-            builder.AddConsoleExporter();
             builder.AddOtlpExporter(opt => opt.Endpoint 
                 = new Uri(otlpOptions.Endpoint));
         });
