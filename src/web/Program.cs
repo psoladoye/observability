@@ -1,9 +1,30 @@
 using monitoring;
 using Serilog;
+using Serilog.Enrichers.Span;
+using Serilog.Formatting.Compact;
+using Serilog.Templates;
+using Serilog.Templates.Themes;
 using web;
 
+
+var expressionTemplate = new ExpressionTemplate("{ {" +
+                                                "time: UtcDateTime(@t), " +
+                                                // "messageTemplate: @mt, " +
+                                                "message: @m, " +
+                                                "severity: if @l = 'Information' then 'Info' else @l, " +
+                                                "'logging.googleapis.com/sourceLocation': if IsDefined(SourceContext) then {file: SourceContext} else Undefined(), " +
+                                                "@x," +
+                                                "'logging.googleapis.com/trace': TraceId, " +
+                                                "'logging.googleapis.com/spanId': SpanId, " +
+                                                "TraceId: Undefined(), " +
+                                                "SpanId: Undefined(), " +
+                                                "'logging.googleapis.com/labels': Rest(false), " +
+                                                "logName: 'projects/paul-soladoye/logs/observability-api'" +
+                                                "} }\n",
+    theme: TemplateTheme.Code);
+
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
+    .Enrich.FromLogContext()
     .CreateBootstrapLogger();
 
 var builder = Host.CreateDefaultBuilder(args)
@@ -11,7 +32,7 @@ var builder = Host.CreateDefaultBuilder(args)
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
-        .Enrich.With(new UtcTimestampEnricher())
+        .Enrich.WithSpan()
     )
     .ConfigureWebHostDefaults(webBuilder =>
     {
