@@ -14,7 +14,7 @@ public class Worker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Worker running at: {Time}", DateTimeOffset.Now);
-            await Task.Delay(5000, stoppingToken);
+            await Task.Delay(10000, stoppingToken);
         }
     }
 }

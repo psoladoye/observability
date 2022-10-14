@@ -27,20 +27,20 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateBootstrapLogger();
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .Enrich.WithSpan()
-    )
-    .ConfigureWebHostDefaults(webBuilder =>
-    {
-        webBuilder.UseStartup<Startup>();
-    });
-
 try
 {
+    var builder = Host.CreateDefaultBuilder(args)
+        .UseSerilog((context, services, configuration) => configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .Enrich.WithSpan()
+        )
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>();
+        });
+    
     var app = builder.Build();
     var hostEnvironment = app.Services.GetRequiredService<IWebHostEnvironment>();
     
@@ -55,6 +55,7 @@ try
 catch (Exception ex)
 {
     Log.Fatal("Host terminated unexpectedly:  {@Exception}", ex);
+    Console.WriteLine($"Error {ex}");
 }
 finally
 {
