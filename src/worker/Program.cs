@@ -1,25 +1,19 @@
-using System.Reflection;
 using monitoring;
 using Serilog;
-using Serilog.Events;
 using worker;
 
-
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .CreateLogger();
+    .CreateBootstrapLogger();
 
+const string serviceName = "worker";
 var builder = Host.CreateDefaultBuilder(args)
+    .ConfigureLoggingDefaults(serviceName)
     .ConfigureServices((hostContext, services) =>
     {
-        services.AddOpenTelemetry(hostContext.Configuration,
-            $"{Assembly.GetExecutingAssembly().GetName().Name ?? "worker"}");
+        services.AddOpenTelemetry(hostContext.Configuration, serviceName);
         services.AddHostedService<Worker>();
-    })
-    .ConfigureLoggingDefaults()
-    .UseSerilog();
+    });
 
 
 try

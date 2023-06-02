@@ -1,11 +1,8 @@
 using monitoring;
 using Serilog;
-using Serilog.Enrichers.Span;
-using Serilog.Formatting.Compact;
 using Serilog.Templates;
 using Serilog.Templates.Themes;
 using web;
-
 
 var expressionTemplate = new ExpressionTemplate("{ {" +
                                                 "time: UtcDateTime(@t), " +
@@ -23,14 +20,14 @@ var expressionTemplate = new ExpressionTemplate("{ {" +
                                                 "} }\n",
     theme: TemplateTheme.Code);
 
-// Log.Logger = new LoggerConfiguration()
-//     .Enrich.FromLogContext()
-//     .CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .CreateBootstrapLogger();
 
 try
 {
     var builder = Host.CreateDefaultBuilder(args)
-        .ConfigureLoggingDefaults()
+        .ConfigureLoggingDefaults("web-api")
         .ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseStartup<Startup>();
