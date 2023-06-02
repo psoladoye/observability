@@ -11,16 +11,15 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
-var configuration = new ConfigurationBuilder().Build();
 var builder = Host.CreateDefaultBuilder(args)
-    .UseSerilog()
     .ConfigureServices((hostContext, services) =>
     {
         services.AddOpenTelemetry(hostContext.Configuration,
             $"{Assembly.GetExecutingAssembly().GetName().Name ?? "worker"}");
         services.AddHostedService<Worker>();
     })
-    .ConfigureLoggingDefaults(configuration);
+    .ConfigureLoggingDefaults()
+    .UseSerilog();
 
 
 try

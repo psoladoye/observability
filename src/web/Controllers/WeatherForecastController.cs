@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using web.Metrics;
 
 namespace web.Controllers;
 
@@ -12,16 +13,19 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly IControllerMetrics _controllerMetrics;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, IControllerMetrics controllerMetrics)
     {
         _logger = logger;
+        _controllerMetrics = controllerMetrics;
     }
 
     [HttpGet]
     public IEnumerable<WeatherForecast> Get()
     {
         _logger.LogInformation("Executing {Method} in Controller", nameof(Get));
+        _controllerMetrics.Count();
         var rng = new Random();
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

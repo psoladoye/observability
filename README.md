@@ -17,3 +17,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/tmp/observability-dev.json
 ```shell
 docker compose -f ops/docker/docker-compose.yml up -d
 ```
+
+### Open Telemetry Collector
+[zpages](https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension) <br>
+[troubleshooting](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md)

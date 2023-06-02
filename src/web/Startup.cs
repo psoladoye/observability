@@ -41,7 +41,7 @@ public class Startup
             c.RoutePrefix = string.Empty;
         });
 
-        app.UseSerilogRequestLogging();
+        // app.UseSerilogRequestLogging();
         app.UseRouting();
         app.UseAuthorization();
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

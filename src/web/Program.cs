@@ -23,19 +23,14 @@ var expressionTemplate = new ExpressionTemplate("{ {" +
                                                 "} }\n",
     theme: TemplateTheme.Code);
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .CreateBootstrapLogger();
+// Log.Logger = new LoggerConfiguration()
+//     .Enrich.FromLogContext()
+//     .CreateBootstrapLogger();
 
 try
 {
     var builder = Host.CreateDefaultBuilder(args)
-        .UseSerilog((context, services, configuration) => configuration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services)
-            .Enrich.FromLogContext()
-            .Enrich.WithSpan()
-        )
+        .ConfigureLoggingDefaults()
         .ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseStartup<Startup>();

@@ -12,9 +12,9 @@ services:
       - "8080:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account.json #https://cloud.google.com/run/docs/testing/local#docker-with-gcp-access
-    volumes:
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service-account.json:ro
+#      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account.json #https://cloud.google.com/run/docs/testing/local#docker-with-gcp-access
+#    volumes:
+#      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service-account.json:ro
     depends_on:
       - otel-collector
 
@@ -61,7 +61,7 @@ services:
   # Open-telemetry Collector
   # =============================================================================================================
   otel-collector:
-    image: otel/opentelemetry-collector-contrib
+    image: otel/opentelemetry-collector-contrib:0.78.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
@@ -73,3 +73,8 @@ services:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP http receiver
       - "55679:55679" # zpages extension
+        
+  # =============================================================================================================
+  # Prometheus
+  # =============================================================================================================
+#  prometheus:
