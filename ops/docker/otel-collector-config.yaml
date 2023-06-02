@@ -2,6 +2,9 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
   
   prometheus:
     config:
@@ -16,7 +19,9 @@ processors:
     
 exporters:
   otlp:
-    endpoint: otelcol:4317
+    endpoint: tempo:4317
+    tls:
+      insecure: true
 
   logging:
     loglevel: debug
@@ -36,7 +41,7 @@ service:
     traces:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ logging ]
+      exporters: [ logging, otlp ]
     metrics:
       receivers: [ otlp ]
       processors: [ batch ]

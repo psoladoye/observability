@@ -24,3 +24,7 @@ docker compose up -d --force-recreate --build web
 [zpages](https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension) <br>
 [troubleshooting](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md)
 [serilog](https://github.com/serilog/serilog-sinks-opentelemetry)
+[best practices](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/security-best-practices.md)
+
+### Grafana Tempo
+[GCS](https://grafana.com/docs/tempo/latest/configuration/gcs/)
