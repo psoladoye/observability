@@ -101,4 +101,14 @@ services:
   # =============================================================================================================
   # Prometheus
   # =============================================================================================================
-#  prometheus:
+  prometheus:
+      image: prom/prometheus:latest
+      volumes:
+        - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+        - prometheus_data:/prometheus
+      ports:
+        - "9090:9090"
+      command: --config.file=/etc/prometheus/prometheus.yml
+
+volumes:
+  prometheus_data: {}
