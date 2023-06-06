@@ -6,6 +6,9 @@ A guide to instrumenting monitoring of applications
 
 ## Logger
 
+### Web Log Structure
+
+
 ### Serilog
 
 ## Docker Compose

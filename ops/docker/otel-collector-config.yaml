@@ -14,6 +14,12 @@ processors:
     detectors: [ gcp ]
     timeout: 10s
     
+  attributes/gcp:
+    actions:
+      - key: gcp.log_name
+        action: insert
+        from_attribute: Application
+    
 exporters:
   otlp:
     endpoint: tempo:4317
@@ -52,7 +58,7 @@ service:
       exporters: [ logging, googlecloud ]
     logs:
       receivers: [ otlp ]
-      processors: [ batch ]
+      processors: [ batch, attributes/gcp ]
       exporters: [ loki, googlecloud ]
   
   telemetry:
