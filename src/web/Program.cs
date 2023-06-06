@@ -1,25 +1,6 @@
 using monitoring;
 using Serilog;
-using Serilog.Templates;
-using Serilog.Templates.Themes;
 using web;
-
-var serviceName = "observability_web_api";
-var expressionTemplate = new ExpressionTemplate("{ {" +
-                                                "time: UtcDateTime(@t), " +
-                                                // "messageTemplate: @mt, " +
-                                                "message: @m, " +
-                                                "severity: if @l = 'Information' then 'Info' else @l, " +
-                                                "'logging.googleapis.com/sourceLocation': if IsDefined(SourceContext) then {file: SourceContext} else Undefined(), " +
-                                                "@x," +
-                                                "'logging.googleapis.com/trace': TraceId, " +
-                                                "'logging.googleapis.com/spanId': SpanId, " +
-                                                "TraceId: Undefined(), " +
-                                                "SpanId: Undefined(), " +
-                                                "'logging.googleapis.com/labels': Rest(false), " +
-                                                "logName: 'projects/paul-soladoye/logs/observability-api'" +
-                                                "} }\n",
-    theme: TemplateTheme.Code);
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
@@ -27,21 +8,21 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    var builder = Host.CreateDefaultBuilder(args)
-        .ConfigureSerilogLogging()
-        .ConfigureWebHostDefaults(webBuilder =>
-        {
-            webBuilder.UseStartup<Startup>();
-        });
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Host.ConfigureSerilogLogging();
+    
+    var startup = new Startup(builder.Configuration);
+    startup.ConfigureServices(builder.Services);
     
     var app = builder.Build();
-    var hostEnvironment = app.Services.GetRequiredService<IWebHostEnvironment>();
     
     Log.Information("Starting up the application...");
-    Log.Information("Environment: {Environment}", hostEnvironment.EnvironmentName);
+    Log.Information("Environment: {Environment}", app.Environment.EnvironmentName);
     var assemblyName = typeof(Program).Assembly.GetName();
     Log.Information("Assembly Name: {AssemblyName}", assemblyName.Name);
     Log.Information("Assembly Version: {AssemblyVersion}", assemblyName.Version);
+    
+    startup.Configure(app, app.Environment);
     
     await app.RunAsync();
 }

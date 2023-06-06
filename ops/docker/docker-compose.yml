@@ -33,6 +33,7 @@ services:
       - OTEL_LOG_LEVEL=error
       - OTEL_SERVICE_NAME=observability_worker
       - OpenTelemetry__ServiceName=observability_worker
+    working_dir: /app/worker
     entrypoint: [dotnet, worker.dll]
     depends_on:
       - otel-collector

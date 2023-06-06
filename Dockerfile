@@ -1,10 +1,5 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /build
 
 # Copy csproj and restore as distinct layers
 COPY observability.sln .
@@ -15,12 +10,19 @@ RUN dotnet restore
 
 # copy and build app and libraries
 COPY ./src src
-RUN dotnet build -c Release -o /app/build
+RUN dotnet build -c Release
 
-FROM build as publish
-RUN dotnet publish -c Release -o /app/publish
+FROM build AS publish
+RUN dotnet publish -c Release
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+
+COPY --from=publish /app/src/web/bin/Release/net7.0/publish ./web/
+COPY --from=publish /app/src/worker/bin/Release/net7.0/publish ./worker/
+
+EXPOSE 80
+EXPOSE 443
+
+WORKDIR /app/web
 ENTRYPOINT ["dotnet", "web.dll"]
