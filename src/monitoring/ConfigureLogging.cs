@@ -52,7 +52,7 @@ public static class ConfigureLogging
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
-                .Enrich.WithSpan()
+                // .Enrich.WithSpan()
                 .WriteTo.OpenTelemetry(opts =>
                 {
                     opts.Endpoint = otlpOptions.Endpoint;
