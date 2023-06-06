@@ -1,8 +1,6 @@
 receivers:
   otlp:
     protocols:
-      grpc:
-        endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
 
@@ -24,7 +22,6 @@ exporters:
 
   logging:
     loglevel: debug
-#    verbosity: detailed
   
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
@@ -48,15 +45,15 @@ service:
     traces:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ logging, otlp, googlecloud ]
+      exporters: [ otlp, googlecloud ]
     metrics:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ logging, prometheus, googlecloud ]
+      exporters: [ logging, googlecloud ]
     logs:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ logging, loki, googlecloud ]
+      exporters: [ loki, googlecloud ]
   
   telemetry:
     logs:

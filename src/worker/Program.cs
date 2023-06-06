@@ -18,10 +18,8 @@ var builder = Host.CreateDefaultBuilder(args)
 try
 {
     var app = builder.Build();
-    var hostEnvironment = app.Services.GetRequiredService<IHostEnvironment>();
     
     Log.Information("Starting up the application...");
-    Log.Information("Environment: {Environment}", hostEnvironment.EnvironmentName);
     var assemblyName = typeof(Program).Assembly.GetName();
     Log.Information("Assembly Name: {AssemblyName}", assemblyName.Name);
     Log.Information("Assembly Version: {AssemblyVersion}", assemblyName.Version);

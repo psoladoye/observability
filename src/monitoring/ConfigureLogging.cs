@@ -35,7 +35,7 @@ public static class ConfigureLogging
                     .AddService(otlpOptions.ServiceName));
                 options.AddConsoleExporter();
                 options.AddOtlpExporter(opt => opt.Endpoint
-                    = new Uri(otlpOptions.Endpoint));
+                    = new Uri(otlpOptions.GrpcEndpoint));
             });
         });
         return hostBuilder;
@@ -52,11 +52,11 @@ public static class ConfigureLogging
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
-                // .Enrich.WithSpan()
+                .Enrich.WithSpan()
                 .WriteTo.OpenTelemetry(opts =>
                 {
-                    opts.Endpoint = otlpOptions.Endpoint;
-                    opts.Protocol = OtlpProtocol.Grpc;
+                    opts.Endpoint = $"{otlpOptions.HttpProtobuf}/v1/logs";
+                    opts.Protocol = OtlpProtocol.HttpProtobuf;
                     opts.ResourceAttributes = new Dictionary<string, object>
                     {
                         ["service.name"] = otlpOptions.ServiceName
