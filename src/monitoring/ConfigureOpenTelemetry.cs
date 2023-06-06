@@ -9,7 +9,7 @@ namespace monitoring;
 public static class ConfigureOpenTelemetry
 {
     public static IServiceCollection AddOpenTelemetry(this IServiceCollection services,
-        IConfiguration configuration, string service)
+        IConfiguration configuration)
     {
         var otlpOptions = configuration.GetSection(OtlpOptions.Oltp)
             .Get<OtlpOptions>() ?? new OtlpOptions();
@@ -17,7 +17,7 @@ public static class ConfigureOpenTelemetry
         services.AddOpenTelemetryTracing((builder) =>
         {
             builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService(service));
+                .AddService(otlpOptions.ServiceName));
                 
             builder.AddHttpClientInstrumentation(opt =>
             {
@@ -45,6 +45,8 @@ public static class ConfigureOpenTelemetry
 
         services.AddOpenTelemetryMetrics(builder =>
         {
+            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                .AddService(otlpOptions.ServiceName));
             builder.AddHttpClientInstrumentation();
             builder.AddMeter("*");
             builder.AddOtlpExporter(opt => opt.Endpoint 

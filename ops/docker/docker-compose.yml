@@ -12,6 +12,9 @@ services:
       - "8080:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_LOG_LEVEL=error
+      - OTEL_SERVICE_NAME=observability_web_api
+      - OpenTelemetry__ServiceName=observability_web_api
 #      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account.json #https://cloud.google.com/run/docs/testing/local#docker-with-gcp-access
 #    volumes:
 #      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service-account.json:ro
@@ -27,6 +30,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - DOTNET_ENVIRONMENT=Development
+      - OTEL_LOG_LEVEL=error
+      - OTEL_SERVICE_NAME=observability_worker
+      - OpenTelemetry__ServiceName=observability_worker
     entrypoint: [dotnet, worker.dll]
     depends_on:
       - otel-collector

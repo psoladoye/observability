@@ -4,6 +4,7 @@ using Serilog.Templates;
 using Serilog.Templates.Themes;
 using web;
 
+var serviceName = "observability_web_api";
 var expressionTemplate = new ExpressionTemplate("{ {" +
                                                 "time: UtcDateTime(@t), " +
                                                 // "messageTemplate: @mt, " +
@@ -27,7 +28,7 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = Host.CreateDefaultBuilder(args)
-        .ConfigureLoggingDefaults("web-api")
+        .ConfigureSerilogLogging()
         .ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseStartup<Startup>();

@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using monitoring;
 using Serilog;
 using web.Metrics;
+using web.Services;
 
 namespace web;
 
@@ -24,7 +25,8 @@ public class Startup
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "web", Version = "v1" });
         });
         services.AddControllerMetrics();
-        services.AddOpenTelemetry(Configuration, $"{Assembly.GetExecutingAssembly().GetName().Name ?? "web"}");
+        services.AddOpenTelemetry(Configuration);
+        services.AddDomainServices();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

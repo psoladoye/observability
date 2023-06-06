@@ -6,12 +6,12 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateBootstrapLogger();
 
-const string serviceName = "worker";
 var builder = Host.CreateDefaultBuilder(args)
-    .ConfigureLoggingDefaults(serviceName)
+    .ConfigureSerilogLogging()
     .ConfigureServices((hostContext, services) =>
     {
-        services.AddOpenTelemetry(hostContext.Configuration, serviceName);
+        services.AddSingleton<IWorkerProcessor, WorkerProcessor>();
+        services.AddOpenTelemetry(hostContext.Configuration);
         services.AddHostedService<Worker>();
     });
 
