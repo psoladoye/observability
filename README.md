@@ -37,6 +37,8 @@ docker compose up -d --force-recreate --build web
 [best practices](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/security-best-practices.md)
 [Config - dotnet](https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/blob/main/docs/config.md)
 [Semantic Conventions](https://github.com/open-telemetry/semantic-conventions)
+[Log Exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md)
+[Dotnet Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples)
 
 ### Grafana Tempo
 [GCS](https://grafana.com/docs/tempo/latest/configuration/gcs/)

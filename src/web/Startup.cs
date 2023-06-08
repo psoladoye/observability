@@ -23,13 +23,15 @@ public class Startup
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "web", Version = "v1" });
         });
+
+        services.AddSingleton<IInstrumentation, Instrumentation>();
         services.AddControllerMetrics();
         services.AddOpenTelemetry(Configuration);
         services.AddDomainServices();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LoggerConfigOptions loggerConfig)
     {
         app.UseSwagger();
         app.UseSwaggerUI(c =>
@@ -38,7 +40,10 @@ public class Startup
             c.RoutePrefix = string.Empty;
         });
 
-        app.UseSerilogRequestLogging();
+        if (loggerConfig.Use == "serilog")
+        {
+            app.UseSerilogRequestLogging();
+        }
         app.UseRouting();
         app.UseAuthorization();
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

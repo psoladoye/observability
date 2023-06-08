@@ -15,6 +15,7 @@ services:
       - OTEL_LOG_LEVEL=debug
       - OTEL_SERVICE_NAME=observability_web_api
       - OpenTelemetry__ServiceName=observability_web_api
+      - LoggerConfig__Use=default
 #      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account.json #https://cloud.google.com/run/docs/testing/local#docker-with-gcp-access
 #    volumes:
 #      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service-account.json:ro
@@ -33,6 +34,7 @@ services:
       - OTEL_LOG_LEVEL=debug
       - OTEL_SERVICE_NAME=observability_worker
       - OpenTelemetry__ServiceName=observability_worker
+      - LoggerConfig__Use=default
     working_dir: /app/worker
     entrypoint: [dotnet, worker.dll]
     depends_on:

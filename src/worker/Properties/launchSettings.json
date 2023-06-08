@@ -5,10 +5,12 @@
       "dotnetRunMessages": "true",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
-        "OpenTelemetry__Endpoint": "http://otel-collector:4317",
+        "OpenTelemetry__GrpcEndpoint": "http://otel-collector:4317",
+        "OpenTelemetry__HttpProtobuf": "http://otel-collector:4318",
         "OTEL_LOG_LEVEL": "error",
         "OTEL_SERVICE_NAME": "observability_worker",
-        "OpenTelemetry__ServiceName": "observability_worker"
+        "OpenTelemetry__ServiceName": "observability_worker",
+        "LoggerConfig__Use": "debug"
       }
     }
   }

@@ -9,7 +9,18 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    builder.Host.ConfigureSerilogLogging();
+
+    var loggerConfig = builder.Configuration.GetSection(LoggerConfigOptions.LoggerConfig)
+        .Get<LoggerConfigOptions>() ?? new LoggerConfigOptions();
+
+    if (loggerConfig.Use == "serilog")
+    {
+        builder.Host.ConfigureSerilogLogging();
+    }
+    else
+    {
+        builder.Host.ConfigureDefaultLogging();
+    }
     
     var startup = new Startup(builder.Configuration);
     startup.ConfigureServices(builder.Services);
@@ -22,7 +33,7 @@ try
     Log.Information("Assembly Name: {AssemblyName}", assemblyName.Name);
     Log.Information("Assembly Version: {AssemblyVersion}", assemblyName.Version);
     
-    startup.Configure(app, app.Environment);
+    startup.Configure(app, app.Environment, loggerConfig);
     
     await app.RunAsync();
 }

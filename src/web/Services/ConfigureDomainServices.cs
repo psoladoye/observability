@@ -4,7 +4,7 @@ public static class ConfigureDomainServices
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection services)
     {
-        services.AddSingleton<IWeatherForecastService, WeatherForecastService>();
+        services.AddHttpClient<IWeatherForecastService, WeatherForecastService>();
         return services;
     }
 }

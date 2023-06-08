@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using Serilog;
@@ -33,9 +34,12 @@ public static class ConfigureLogging
             {
                 options.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService(otlpOptions.ServiceName));
-                options.AddConsoleExporter();
-                options.AddOtlpExporter(opt => opt.Endpoint
-                    = new Uri(otlpOptions.GrpcEndpoint));
+                // options.AddConsoleExporter();
+                options.AddOtlpExporter(opt =>
+                {
+                    opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/logs");
+                    opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                });
             });
         });
         return hostBuilder;
@@ -47,12 +51,12 @@ public static class ConfigureLogging
         {
             var otlpOptions = context.Configuration.GetSection(OtlpOptions.Oltp)
                 .Get<OtlpOptions>() ?? new OtlpOptions();
-            
+
             config
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
-                .Enrich.WithSpan()
+            // .Enrich.WithSpan()
                 .WriteTo.OpenTelemetry(opts =>
                 {
                     opts.Endpoint = $"{otlpOptions.HttpProtobuf}/v1/logs";

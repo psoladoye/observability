@@ -6,11 +6,31 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateBootstrapLogger();
 
-var builder = Host.CreateDefaultBuilder(args)
-    .ConfigureSerilogLogging()
+var builder = Host.CreateDefaultBuilder(args);
+
+var configurationRoot = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+configurationRoot.Providers.ToList().ForEach(x => Log.Information($"Yes: {x.GetType()}, {x.ToString()}"));
+var loggerConfig = configurationRoot.GetSection(LoggerConfigOptions.LoggerConfig)
+    .Get<LoggerConfigOptions>() ?? new LoggerConfigOptions();
+
+if (loggerConfig.Use == "serilog")
+{
+    builder.ConfigureSerilogLogging();
+}
+else
+{
+    builder.ConfigureDefaultLogging();
+}
+builder
     .ConfigureServices((hostContext, services) =>
     {
-        services.AddSingleton<IWorkerProcessor, WorkerProcessor>();
+        services.AddSingleton<IInstrumentation, Instrumentation>();
+        services.AddHttpClient<IWorkerProcessor, WorkerProcessor>();
         services.AddOpenTelemetry(hostContext.Configuration);
         services.AddHostedService<Worker>();
     });

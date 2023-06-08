@@ -1,12 +1,13 @@
 
 using System.Diagnostics.Metrics;
+using monitoring;
 
 namespace web.Metrics;
 
 public class ControllerMetrics : IControllerMetrics
 {
     private static readonly Meter Meter = new(
-        "WeatherStation.Forecast", 
+        $"{nameof(IInstrumentation)}.WeatherStation.Forecast", 
         "1.0.0");
     private static readonly Counter<int> Counter = Meter.CreateCounter<int>(
         "total_number_of_get_forecast",

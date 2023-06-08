@@ -15,50 +15,67 @@ public static class ConfigureOpenTelemetry
         var otlpOptions = configuration.GetSection(OtlpOptions.Oltp)
             .Get<OtlpOptions>() ?? new OtlpOptions();
 
-        services.AddOpenTelemetryTracing((builder) =>
-        {
-            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService(otlpOptions.ServiceName));
-                
-            builder.AddHttpClientInstrumentation(opt =>
+        services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(otlpOptions.ServiceName))
+            .WithTracing(builder =>
             {
-                opt.RecordException = true;
-                opt.SetHttpFlavor = true;
-                opt.Filter = httpRequestMessage =>
-                {
-                    string path;
-                    try
+                builder.AddSource($"{nameof(IInstrumentation)}.*");
+                builder
+                    .AddAspNetCoreInstrumentation(opts =>
                     {
-                        path = httpRequestMessage!.RequestUri!.PathAndQuery;
-                    }
-                    catch (InvalidOperationException)
+                        opts.RecordException = true;
+                        opts.Filter = httpContext =>
+                        {
+                            string path;
+                            try
+                            {
+                                path = httpContext.Request.Path;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                return false;
+                            }
+                        
+                            return !path.StartsWith("/metrics") && !path.StartsWith("/health");
+                        };
+                    })
+                    .AddHttpClientInstrumentation(opts =>
                     {
-                        return false;
-                    }
-
-                    return !path!.StartsWith("/metrics") && !path.StartsWith("/health");
-                };
-            });
-            builder.AddSource("*");
-            builder.AddOtlpExporter(opt =>
+                        opts.RecordException = true;
+                        opts.FilterHttpRequestMessage = httpRequestMessage =>
+                        {
+                            string path;
+                            try
+                            {
+                                path = httpRequestMessage!.RequestUri!.PathAndQuery;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                return false;
+                            }
+                    
+                            return !path!.StartsWith("/metrics") && !path.StartsWith("/health");
+                        };
+                    })
+                    .AddOtlpExporter(opt =>
+                    {
+                        opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/traces");
+                        opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
+            })
+            .WithMetrics(builder =>
             {
-                opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/traces");
-                opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                builder.AddConsoleExporter();
+                builder.AddMeter($"{nameof(IInstrumentation)}.*");
+                builder
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddOtlpExporter(opt =>
+                    {
+                        opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/metrics");
+                        opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
             });
-        });
-
-        services.AddOpenTelemetryMetrics(builder =>
-        {
-            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService(otlpOptions.ServiceName));
-            builder.AddHttpClientInstrumentation();
-            builder.AddMeter("*");
-            builder.AddOtlpExporter(opt =>
-            {
-                opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/metrics");
-                opt.Protocol = OtlpExportProtocol.HttpProtobuf;
-            });
-        });
         return services;
     }
 }
