@@ -36,6 +36,7 @@ docker compose up -d --force-recreate --build web
 [serilog](https://github.com/serilog/serilog-sinks-opentelemetry)
 [best practices](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/security-best-practices.md)
 [Config - dotnet](https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/blob/main/docs/config.md)
+[Semantic Conventions](https://github.com/open-telemetry/semantic-conventions)
 
 ### Grafana Tempo
 [GCS](https://grafana.com/docs/tempo/latest/configuration/gcs/)

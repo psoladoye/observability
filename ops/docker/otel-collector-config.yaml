@@ -13,15 +13,22 @@ processors:
   resourcedetection:
     detectors: [ gcp ]
     timeout: 10s
+    override: false
     
   attributes/gcp:
     actions:
       - key: gcp.log_name
         action: insert
         from_attribute: Application
-    
+        
+#  logstransform/gcp:
+#    operators:
+#      - type: regex_parser
+#        regex: '(?m)^(?P<remoteIp>[^ ]*) (?P<host>[^ ]*) (?P<user>[^ ]*) \[(?P<time>[^\]]*)\] "(?P<requestMethod>\S+)(?: +(?P<requestUrl>[^\"]*?)(?: +(?P<protocol>\S+))?)?" (?P<status>[^ ]*) (?P<responseSize>[^ ]*)(?: "(?P<referer>[^\"]*)" "(?P<userAgent>[^\"]*)")?$'
+#        parse_to: attributes["gcp.http_request"]
+        
 exporters:
-  otlp:
+  otlp/tempo:
     endpoint: tempo:4317
     tls:
       insecure: true
@@ -38,6 +45,9 @@ exporters:
   googlecloud:
     log:
       default_log_name: "opentelemetry.io/collector-exported-log"
+
+connectors:
+  forward:
       
 extensions:
   health_check:
@@ -50,16 +60,20 @@ service:
   pipelines:
     traces:
       receivers: [ otlp ]
-      processors: [ batch ]
-      exporters: [ otlp, googlecloud ]
+      processors: [ memory_limiter, batch ]
+      exporters: [ otlp/tempo ]
     metrics:
       receivers: [ otlp ]
-      processors: [ batch ]
-      exporters: [ logging, googlecloud ]
+      processors: [ memory_limiter, batch ]
+      exporters: [ prometheus ]
     logs:
       receivers: [ otlp ]
-      processors: [ batch, attributes/gcp ]
-      exporters: [ loki, googlecloud ]
+      processors: [ memory_limiter, batch ]
+      exporters: [ loki, forward ]
+    logs/gcp:
+      receivers: [ forward ]
+      processors: [ memory_limiter, batch, resourcedetection, attributes/gcp ]
+      exporters: [ logging ]
   
   telemetry:
     logs:
