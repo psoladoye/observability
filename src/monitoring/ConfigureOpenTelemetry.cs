@@ -65,7 +65,6 @@ public static class ConfigureOpenTelemetry
             })
             .WithMetrics(builder =>
             {
-                builder.AddConsoleExporter();
                 builder.AddMeter($"{nameof(IInstrumentation)}.*");
                 builder
                     .AddAspNetCoreInstrumentation()

@@ -61,11 +61,11 @@ service:
     traces:
       receivers: [ otlp ]
       processors: [ memory_limiter, batch ]
-      exporters: [ otlp/tempo ]
+      exporters: [ otlp/tempo, googlecloud ]
     metrics:
       receivers: [ otlp ]
-      processors: [ memory_limiter, batch ]
-      exporters: [ prometheus ]
+      processors: [ batch ]
+      exporters: [ prometheus, googlecloud ]
     logs:
       receivers: [ otlp ]
       processors: [ memory_limiter, batch ]
@@ -73,7 +73,7 @@ service:
     logs/gcp:
       receivers: [ forward ]
       processors: [ memory_limiter, batch, resourcedetection, attributes/gcp ]
-      exporters: [ logging ]
+      exporters: [ googlecloud ]
   
   telemetry:
     logs:

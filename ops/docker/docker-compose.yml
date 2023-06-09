@@ -15,7 +15,7 @@ services:
       - OTEL_LOG_LEVEL=debug
       - OTEL_SERVICE_NAME=observability_web_api
       - OpenTelemetry__ServiceName=observability_web_api
-      - LoggerConfig__Use=default
+      - LoggerConfig__Use=serilog
 #      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account.json #https://cloud.google.com/run/docs/testing/local#docker-with-gcp-access
 #    volumes:
 #      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service-account.json:ro
@@ -34,7 +34,7 @@ services:
       - OTEL_LOG_LEVEL=debug
       - OTEL_SERVICE_NAME=observability_worker
       - OpenTelemetry__ServiceName=observability_worker
-      - LoggerConfig__Use=default
+      - LoggerConfig__Use=serilog
     working_dir: /app/worker
     entrypoint: [dotnet, worker.dll]
     depends_on:
@@ -71,24 +71,22 @@ services:
     command: -config.file=/etc/tempo.yaml
     volumes:
       - ./tempo.yaml:/etc/tempo.yaml
-      - ./tempo-data:/tmp/tempo
-  # Generate fake traces...
-  k6-tracing:
-    image: ghcr.io/grafana/xk6-client-tracing:v0.0.2
-    environment:
-      - ENDPOINT=otel-collector:4317
-    restart: always
-    depends_on:
-      - otel-collector
+      - tempo_data:/tmp/tempo
   
-  
+
   # =============================================================================================================
   # Grafana
   # =============================================================================================================
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana-enterprise:latest
     ports:
       - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/dashboards
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
   
   # =============================================================================================================
   # Open-telemetry Collector
@@ -120,7 +118,10 @@ services:
         - prometheus_data:/prometheus
       ports:
         - "9090:9090"
-      command: --config.file=/etc/prometheus/prometheus.yml
+      command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
 
 volumes:
   prometheus_data: {}
+  grafana_data: {}
+  tempo_data: {}
+  loki_data: {}
