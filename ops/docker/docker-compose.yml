@@ -48,6 +48,8 @@ services:
     ports: 
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/data/loki
     
   # =============================================================================================================
   # Promtail
