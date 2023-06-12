@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.webapi.name }}
+  namespace: {{ .Values.appNamespace }}
+  labels:
+    {{- include "observability-app.labels" . | nindent 4 }}
+    app: {{ .Values.webapi.name }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.webapi.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.webapi.name }}
+      app.kubernetes.io/name: {{ include "observability-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        {{- include "observability-app.podAnnotations" .Values.webapi.name | nindent 8 }}
+      labels:
+        app: {{ .Values.webapi.name }}
+        {{- include "observability-app.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "observability-app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.webapi.name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.webapi.image.repository }}:{{ .Values.webapi.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.webapi.image.pullPolicy }}
+          env:
+            - name: PORT
+              value: "8080"
+          envFrom:
+            - configMapRef:
+                name: {{ include "observability-app.fullname" . }}-config-map
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

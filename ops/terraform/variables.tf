@@ -16,11 +16,3 @@ variable "authorized_networks" {
   }))
   default = []
 }
-
-variable "application_namespace" {
-  default = "default"
-}
-
-variable "observability_namespace" {
-  default = "observability"
-}

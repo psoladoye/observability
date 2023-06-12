@@ -25,4 +25,4 @@ EXPOSE 80
 EXPOSE 443
 
 WORKDIR /app/web
-ENTRYPOINT ["dotnet", "web.dll"]
+ENTRYPOINT dotnet web.dll --urls="http://0.0.0.0:$PORT"

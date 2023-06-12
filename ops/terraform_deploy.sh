@@ -2,26 +2,33 @@
 
 set -e
 
-cd terraform
+cd ops/terraform
 
 #export TF_LOG=debug
 
-terraform plan -out=tfplan
-terraform apply -auto-approve "tfplan"
+terraform plan
+terraform apply -auto-approve
 
 CLUSTER_NAME=$(terraform output -raw cluster_name)
-SERVICE_ACCOUNT=$(terraform output -raw deployment_service_account)
+NODE_SERVICE_ACCOUNT=$(terraform output -raw node_service_account)
+K8S_SERVICE_ACCOUNT=$(terraform output -raw k8s_service_account)
+K8S_SERVICE_ACCOUNT_NAME=$(terraform output -raw k8s_service_account_name)
 APPLICATION_NAMESPACE=$(terraform output -raw application_namespace)
 OBSERVABILITY_NAMESPACE=$(terraform output -raw observability_namespace)
+GCP_PROJECT=$(terraform output -raw gcp_project)
+GCP_ZONE=$(terraform output -raw gcp_zone)
 
 export CLUSTER_NAME
-export SERVICE_ACCOUNT
+export NODE_SERVICE_ACCOUNT
+export K8S_SERVICE_ACCOUNT
+export K8S_SERVICE_ACCOUNT_NAME
 export APPLICATION_NAMESPACE
 export OBSERVABILITY_NAMESPACE
+export GCP_PROJECT
+export GCP_REGION="us-central1"
+export GCP_ZONE
 
-cd ..
+cd ../..
 
 # store url for gitlab environment
 #echo "PUBLIC_URL=$PUBLIC_URL" >> .env
-
-echo "Cluster name: ${CLUSTER_NAME}"

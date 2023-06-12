@@ -1,0 +1,129 @@
+# Default values for observability-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Common values
+# ======================================================================================================================
+
+nameOverride: ""
+fullnameOverride: ""
+loggerConfigUse: serilog
+otelLogLevel: debug
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ${K8S_SERVICE_ACCOUNT_NAME}
+appNamespace: ${APPLICATION_NAMESPACE}
+observabilityNamespace: ${OBSERVABILITY_NAMESPACE}
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+  fsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ "ALL" ]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# webapi deployment
+# ======================================================================================================================
+webapi:
+  name: web-api
+  replicaCount: 1
+
+  image:
+    repository: gcr.io/${GCP_PROJECT}/observability
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ${IMAGE_VERSION}
+    env:
+      - name: OTEL_SERVICE_NAME
+        value: observability_web_api
+      - name: OpenTelemetry__ServiceName
+        value: observability_web_api
+  
+  service:
+    type: ClusterIP
+    port: 80
+
+# worker deployment
+# ======================================================================================================================
+worker:
+  name: worker
+  replicaCount: 1
+
+  image:
+    repository: gcr.io/${GCP_PROJECT}/observability
+    pullPolicy: IfNotPresent
+    tag: ${IMAGE_VERSION}
+    env:
+      - name: OTEL_SERVICE_NAME
+        value: observability_worker
+      - name: OpenTelemetry__ServiceName
+        value: observability_worker
+    workingDir: /app/worker
+    entrypoint: [ dotnet, worker.dll ]
+
+
+# nginx deployment (test)
+# ======================================================================================================================
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+podAnnotations: {}
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+#   cpu: 100m
+#   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80

@@ -32,7 +32,8 @@ module "gke" {
 
   master_authorized_networks = var.master_authorized_networks
 
-  node_metadata = "GKE_METADATA"
+  node_metadata         = "GKE_METADATA"
+  grant_registry_access = true
 
   database_encryption = [
     {
@@ -62,6 +63,7 @@ module "gke" {
       min_count    = 1
       image_type   = "COS_CONTAINERD"
       preemtible   = true
+      disk_size_gb = 50
     }
   ]
 }

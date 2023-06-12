@@ -13,6 +13,13 @@ A guide to instrumenting monitoring of applications
 
 ## Docker Compose
 
+### Build and Push to Container Registry
+```shell
+docker build -t gcr.io/${GCP_PROJECT}/observability:${IMAGE_VERSION} .
+
+docker push gcr.io/${GCP_PROJECT}/observability:${IMAGE_VERSION}
+```
+
 ### Build Application Images
 ```shell
 docker compose -f ops/docker/docker-compose.yml build

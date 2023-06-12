@@ -28,10 +28,9 @@ public class WorkerProcessor : IWorkerProcessor
     public async Task Process()
     {
         using (_ = _activitySource.StartActivity($"{nameof(WorkerProcessor)}.{nameof(Process)}"))
-        // using (_ = Worker.WorkerActivitySource.StartActivity($"{nameof(WorkerProcessor)}.{nameof(Process)}"))
         {
             _logger.LogInformation("Processing data for web service");
-            var post = await _httpClient.GetFromJsonAsync<Post>("https://dummyjson.com/post/2");
+            var post = await _httpClient.GetFromJsonAsync<Post>("https://dummyjson.com/post/3");
             _logger.LogInformation("Returned post: {Post}", post);
         }
     }

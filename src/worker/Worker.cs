@@ -24,7 +24,6 @@ public class Worker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             using (_ = _activitySource.StartActivity($"{nameof(Worker)}.{nameof(ExecuteAsync)}"))
-            // using (_ = WorkerActivitySource.StartActivity($"{nameof(Worker)}.{nameof(ExecuteAsync)}"))
             {
                 _logger.LogInformation("Worker running at: {Time}", DateTimeOffset.Now);
                 await Task.Delay(30000, stoppingToken); 

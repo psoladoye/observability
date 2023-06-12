@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.appNamespace }}
+  name: {{ include "observability-app.fullname" . }}-config-map
+data:
+  LoggerConfig__Use: {{ .Values.loggerConfigUse }}
+  OTEL_LOG_LEVEL: {{ .Values.otelLogLevel }}

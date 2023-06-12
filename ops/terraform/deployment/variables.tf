@@ -11,11 +11,3 @@ variable "project" {}
 variable "master_authorized_networks" {}
 
 variable "stack_name" {}
-
-variable "application_namespace" {
-  default = "default"
-}
-
-variable "observability_namespace" {
-  default = "observability"
-}
