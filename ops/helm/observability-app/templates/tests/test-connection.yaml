@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "observability-app.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "observability-app.fullname" . }}:{{ .Values.webapi.service.port }}']
   restartPolicy: Never

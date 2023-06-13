@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -e
+#set -e
 
-cd ops/terraform
+cd ops/terraform || exit 
 
 export CI_ENVIRONMENT_SLUG=dev
 export TF_BUCKET=tf-state-dev-007

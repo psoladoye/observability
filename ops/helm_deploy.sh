@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-set -e
+#set -e
+
+export IMAGE_VERSION=1.0.2
 
 # Connect to Kubernetes Via GKE
 # ======================================================================================================================
 #gcloud auth activate-service-account "${DEPLOY_GSA}" --key-file="${GOOGLE_CREDENTIALS}"
 gcloud container clusters get-credentials "${CLUSTER_NAME}" --zone "${GCP_ZONE}" --project "${GCP_PROJECT}"
 
-envsubst < ops/helm/observability-app/values-tmp.yaml > ops/helm/observability-app/values.yaml
+envsubst < ops/helm/observability-app/x-values-tmp.yaml > ops/helm/observability-app/values.yaml
 
 # Upgrade Application Release
 # ======================================================================================================================    

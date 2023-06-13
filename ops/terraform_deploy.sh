@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -e
+#set -e
 
-cd ops/terraform
+cd ops/terraform || exit
 
 #export TF_LOG=debug
 

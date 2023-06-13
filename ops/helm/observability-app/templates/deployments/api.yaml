@@ -7,9 +7,12 @@ metadata:
     {{- include "observability-app.labels" . | nindent 4 }}
     app: {{ .Values.webapi.name }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.webapi.replicaCount }}
-  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: {{ .Values.webapi.name }}
@@ -44,7 +47,7 @@ spec:
                 name: {{ include "observability-app.fullname" . }}-config-map
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.webapi.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
