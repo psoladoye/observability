@@ -13,5 +13,5 @@ provider "google-beta" {
 data "google_project" "project" {}
 
 resource "random_id" "stack" {
-  byte_length = 4
+  byte_length = 3
 }

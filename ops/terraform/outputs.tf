@@ -6,12 +6,20 @@ output "node_service_account" {
   value = module.deployment.node_service_account
 }
 
-output "k8s_service_account" {
-  value = module.deployment.k8s_service_account
+output "k8s_app_service_account" {
+  value = module.deployment.k8s_app_service_account
 }
 
-output "k8s_service_account_name" {
-  value = module.deployment.k8s_service_account_name
+output "k8s_app_service_account_name" {
+  value = module.deployment.k8s_app_service_account_name
+}
+
+output "k8s_observability_service_account" {
+  value = module.deployment.k8s_observability_service_account
+}
+
+output "k8s_observability_service_account_name" {
+  value = module.deployment.k8s_observability_service_account_name
 }
 
 output "application_namespace" {

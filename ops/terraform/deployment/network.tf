@@ -7,19 +7,19 @@ module "gcp_network" {
 
   subnets = [
     {
-      subnet_name   = local.subnet_name
+      subnet_name   = "cluster-subnet"
       subnet_ip     = "10.0.0.0/17"
       subnet_region = var.region
     },
     {
-      subnet_name   = local.master_auth_subnet_name
+      subnet_name   = "cluster-master-subnet"
       subnet_ip     = "10.60.0.0/17"
       subnet_region = var.region
     },
   ]
 
   secondary_ranges = {
-    (local.subnet_name) = [
+    "cluster-subnet" = [
       {
         range_name    = local.ip_range_pods
         ip_cidr_range = "192.168.0.0/18"

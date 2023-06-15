@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.appNamespace }}
   labels:
     app: {{ .Values.worker.name }}
-    {{- include "observability-app.labels" . | nindent 4 }}
+    {{- include "sample-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.worker.replicaCount }}
   strategy:
@@ -16,21 +16,21 @@ spec:
   selector:
     matchLabels:
       app: {{ .Values.worker.name }}
-      app.kubernetes.io/name: {{ include "observability-app.name" . }}
+      app.kubernetes.io/name: {{ include "sample-app.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       annotations:
-        {{- include "observability-app.podAnnotations" .Values.worker.name | nindent 8 }}
+        {{- include "sample-app.podAnnotations" .Values.worker.name | nindent 8 }}
       labels:
         app: {{ .Values.worker.name }}
-        {{- include "observability-app.selectorLabels" . | nindent 8 }}
+        {{- include "sample-app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "observability-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "sample-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -48,7 +48,7 @@ spec:
 {{/*          command: {{ .Values.worker.image.entrypoint }}*/}}
           envFrom:
             - configMapRef:
-                name: {{ include "observability-app.fullname" . }}-config-map
+                name: {{ include "sample-app.fullname" . }}-config-map
             
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -16,9 +16,9 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: env-dev-e871111f
-appNamespace: app
-observabilityNamespace: observability
+  name: ${K8S_SERVICE_ACCOUNT_NAME}
+appNamespace: ${APPLICATION_NAMESPACE}
+observabilityNamespace: ${OBSERVABILITY_NAMESPACE}
   
 imagePullSecrets: []
 resources: {}
@@ -45,15 +45,15 @@ webapi:
   replicaCount: 1
 
   image:
-    repository: gcr.io/paul-soladoye/observability
+    repository: gcr.io/${GCP_PROJECT}/observability
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.0.2
+    tag: ${IMAGE_VERSION}
     env:
       - name: OTEL_SERVICE_NAME
-        value: observability_web_api
+        value: sample_web_api
       - name: OpenTelemetry__ServiceName
-        value: observability_web_api
+        value: sample_web_api
   
   service:
     type: ClusterIP
@@ -71,13 +71,13 @@ worker:
   replicaCount: 1
 
   image:
-    repository: gcr.io/paul-soladoye/observability
+    repository: gcr.io/${GCP_PROJECT}/observability
     pullPolicy: IfNotPresent
-    tag: 1.0.2
+    tag: ${IMAGE_VERSION}
     env:
       - name: OTEL_SERVICE_NAME
-        value: observability_worker
+        value: sample_worker
       - name: OpenTelemetry__ServiceName
-        value: observability_worker
+        value: sample_worker
     workingDir: /app/worker
     entrypoint: [ dotnet, worker.dll ]

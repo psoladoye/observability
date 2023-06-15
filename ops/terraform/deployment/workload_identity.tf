@@ -1,27 +1,15 @@
-# Get the credentials 
-resource "null_resource" "get-credentials" {
-
-  depends_on = [module.gke]
-
-  provisioner "local-exec" {
-    command = "gcloud container clusters get-credentials ${module.gke.name} --zone ${var.zone} --project ${var.project}"
-  }
-}
-
-resource "kubernetes_namespace" "application_namespace" {
-
-  depends_on = [null_resource.get-credentials]
-
-  metadata {
-    name = local.application_namespace
-  }
-}
-
-module "workload_identity" {
+module "app_workload_identity" {
   source     = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  name       = var.stack_name
-  namespace  = local.application_namespace
+  name       = "${var.stack_name}-app"
+  namespace  = kubernetes_namespace.application_namespace.metadata[0].name
   project_id = var.project
   roles      = ["roles/storage.admin", "roles/compute.admin"]
-  depends_on = [kubernetes_namespace.application_namespace]
+}
+
+module "observability_workload_identity" {
+  source     = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  name       = "${var.stack_name}-observability"
+  namespace  = kubernetes_namespace.observability_namespace.metadata[0].name
+  project_id = var.project
+  roles      = ["roles/storage.admin", "roles/compute.admin"]
 }

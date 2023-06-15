@@ -16,7 +16,7 @@ metadata:
   name: {{ .Values.webapi.name }}
   namespace: {{ .Values.appNamespace }}
   labels:
-    {{- include "observability-app.labels" . | nindent 4 }}
+    {{- include "sample-app.labels" . | nindent 4 }}
   {{- with .Values.webapi.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -30,7 +30,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "observability-app.fullname" . }}-api-service
+                name: {{ include "sample-app.fullname" . }}-api-service
                 port:
                   number: {{ .Values.webapi.service.port }}
 {{- end }}

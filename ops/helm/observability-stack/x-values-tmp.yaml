@@ -1,0 +1,174 @@
+# Grafana
+# ======================================================================================================================
+grafana:
+  enabled: true
+  namespaceOverride: ${OBSERVABILITY_NAMESPACE}
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
+  nodeSelector:
+    sandbox.gke.io/runtime: gvisor
+  tolerations:
+    - key: sandbox.gke.io/runtime
+      value: gvisor
+      effect: NoSchedule
+  service:
+    port: 3000
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          access: proxy
+          type: prometheus
+          url: http://prometheus:9090
+          isDefault: true
+          editable: true
+
+        - name: Loki
+          access: proxy
+          type: loki
+          url: http://loki:3100
+          editable: true
+
+        - name: Tempo
+          access: proxy
+          type: tempo
+          url: http://tempo:3200
+          editable: true
+    
+
+# opentelemetry-collector
+# ======================================================================================================================
+opentelemetry-collector:
+  enabled: true
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 472
+    runAsGroup: 472
+    fsGroup: 472
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  nodeSelector:
+    sandbox.gke.io/runtime: gvisor
+  tolerations:
+    - key: sandbox.gke.io/runtime
+      value: gvisor
+      effect: NoSchedule
+  config:
+    connectors:
+      forward:
+    processors: 
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 65
+        spike_limit_percentage: 20
+      resourcedetection:
+        detectors: [ gcp ]
+        timeout: 10s
+        override: false
+    receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4318
+    service:
+      pipelines:
+        traces:
+          receivers: [ otlp ]
+          processors: [ memory_limiter, batch ]
+          exporters: [ logging ]
+        metrics:
+          receivers: [ otlp ]
+          processors: [ batch ]
+          exporters: [ logging ]
+        logs:
+          receivers: [ otlp ]
+          processors: [ memory_limiter, batch ]
+          exporters: [ logging ]
+        logs/gcp:
+          receivers: [ forward ]
+          processors: [ memory_limiter, batch, resourcedetection ]
+          exporters: [ logging ]
+
+      telemetry:
+        logs:
+          level: debug
+        metrics:
+          level: detailed
+          address: 0.0.0.0:8888
+  ports:
+    otlp-http:
+      enabled: true
+      containerPort: 4318
+      servicePort: 4318
+      hostPort: 4318
+      protocol: TCP
+
+# tempo
+# ======================================================================================================================
+tempo:
+  enabled: false
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
+  nodeSelector:
+    sandbox.gke.io/runtime: gvisor
+  tolerations:
+    - key: sandbox.gke.io/runtime
+      value: gvisor
+      effect: NoSchedule
+
+# loki
+# ======================================================================================================================
+loki:
+  enabled: true
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
+  loki:
+    nodeSelector:
+      sandbox.gke.io/runtime: gvisor
+    tolerations:
+      - key: sandbox.gke.io/runtime
+        value: gvisor
+        effect: NoSchedule
+
+# prometheus
+# ======================================================================================================================
+prometheus:
+  enabled: false
+  alertmanager:
+    enabled: false
+  kube-state-metrics: 
+    enabled: false
+  prometheus-node-exporter: 
+    enabled: false
+  prometheus-pushgateway: 
+    enabled: false
+  serviceAccounts:
+    server: 
+      annotations:
+        iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
+  server:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+    nodeSelector:
+      sandbox.gke.io/runtime: gvisor
+    tolerations:
+      - key: sandbox.gke.io/runtime
+        value: gvisor
+        effect: NoSchedule
