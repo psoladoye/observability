@@ -5,4 +5,5 @@ metadata:
   name: {{ include "sample-app.fullname" . }}-config-map
 data:
   LoggerConfig__Use: {{ .Values.loggerConfigUse }}
-  OTEL_LOG_LEVEL: {{ .Values.otelLogLevel }}
+  OpenTelemetry__EnableConsoleExporter: "false"
+  OpenTelemetry__HttpProtobuf: {{ .Values.otelCollectorEndpoint }}

@@ -7,10 +7,10 @@
         "DOTNET_ENVIRONMENT": "Development",
         "OpenTelemetry__GrpcEndpoint": "http://otel-collector:4317",
         "OpenTelemetry__HttpProtobuf": "http://otel-collector:4318",
-        "OTEL_LOG_LEVEL": "error",
-        "OTEL_SERVICE_NAME": "sample_worker",
         "OpenTelemetry__ServiceName": "sample_worker",
-        "LoggerConfig__Use": "debug"
+        "LoggerConfig__Use": "serilog",
+        "OpenTelemetry__EnableConsoleExporter": "true",
+        "Pubsub__IsEnabled": "true"
       }
     }
   }

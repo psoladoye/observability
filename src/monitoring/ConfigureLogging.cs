@@ -34,6 +34,10 @@ public static class ConfigureLogging
             {
                 options.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService(otlpOptions.ServiceName));
+                if (otlpOptions.EnableConsoleExporter)
+                {
+                    options.AddConsoleExporter();
+                }
                 options.AddOtlpExporter(opt =>
                 {
                     opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/logs");

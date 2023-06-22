@@ -14,7 +14,9 @@
         "OTEL_LOG_LEVEL": "error",
         "OTEL_SERVICE_NAME": "sample_web_api",
         "OpenTelemetry__ServiceName": "sample_web_api",
-        "LoggerConfig__Use": "debug"
+        "OpenTelemetry__EnableConsoleExporter": "true",
+        "LoggerConfig__Use": "serilog",
+        "Pubsub__IsEnabled": "true"
       }
     }
   }

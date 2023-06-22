@@ -62,6 +62,10 @@ public static class ConfigureOpenTelemetry
                         opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/traces");
                         opt.Protocol = OtlpExportProtocol.HttpProtobuf;
                     });
+                if (otlpOptions.EnableConsoleExporter)
+                {
+                    builder.AddConsoleExporter();
+                }
             })
             .WithMetrics(builder =>
             {
