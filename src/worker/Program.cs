@@ -1,3 +1,4 @@
+using common;
 using monitoring;
 using Serilog;
 using worker;
@@ -32,6 +33,9 @@ builder
         services.AddSingleton<IInstrumentation, Instrumentation>();
         services.AddHttpClient<IWorkerProcessor, WorkerProcessor>();
         services.AddOpenTelemetry(hostContext.Configuration);
+        services.Configure<PubsubOptions>(configurationRoot.GetSection(PubsubOptions.Pubsub));
+        var pubsubOptions = configurationRoot.GetSection(PubsubOptions.Pubsub);
+        services.AddPubsubSubscriber((pubsubOptions.Get<PubsubOptions>()?? new PubsubOptions()).IsEnabled);
         services.AddHostedService<Worker>();
     });
 
