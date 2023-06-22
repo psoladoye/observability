@@ -6,8 +6,12 @@ variable "zone" {
   default = "us-central1-c"
 }
 
-variable "project" {}
+variable "project" {
+  default = ""
+}
 
 variable "master_authorized_networks" {}
 
-variable "stack_name" {}
+variable "stack_name" {
+  type = string
+}

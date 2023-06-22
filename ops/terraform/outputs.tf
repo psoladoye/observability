@@ -37,3 +37,11 @@ output "gcp_project" {
 output "gcp_zone" {
   value = var.zone
 }
+
+output "main_node_pool" {
+  value = module.deployment.main_node_pool
+}
+
+output "sandbox_node_pool" {
+  value = module.deployment.sandbox_node_pool
+}

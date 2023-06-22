@@ -6,7 +6,9 @@ variable "zone" {
   default = "us-central1-c"
 }
 
-variable "project" {}
+variable "project" {
+  default = ""
+}
 
 variable "authorized_networks" {
   description = "The cidr blocks authorized to manage the kubernetes control plane."

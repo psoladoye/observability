@@ -354,11 +354,15 @@ MigrationBackup/
 .idea/.idea.*
 .vscode
 
-# Docker Volumes
+# Docker Compose
 ops/docker/tempo-data/
+.env
 
 # Terraform
 **/*.tfvars
 **/tfplan
 **/**/.terraform
+
+# Helm
+**/**/*.tgz
 

@@ -32,18 +32,18 @@ module "gke" {
 
   master_authorized_networks = var.master_authorized_networks
 
-  node_metadata                     = "GKE_METADATA"
-  grant_registry_access             = true
+  node_metadata         = "GKE_METADATA"
+  grant_registry_access = true
 
   node_pools_oauth_scopes = {
-    "main-pool" = [
+    (local.main_node_pool) = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/trace.append",
       "https://www.googleapis.com/auth/devstorage.read_write"
     ]
 
-    "sandbox-pool" = [
+    (local.sandbox_node_pool) = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/trace.append",
@@ -52,8 +52,8 @@ module "gke" {
 
   node_pools = [
     {
-      name         = "main-pool"
-      machine_type = "e2-standard-2"
+      name         = local.main_node_pool
+      machine_type = local.machine_type
       max_count    = 3
       min_count    = 1
       image_type   = "COS_CONTAINERD"
@@ -61,8 +61,8 @@ module "gke" {
       disk_size_gb = 50
     },
     {
-      name         = "sandbox-pool"
-      machine_type = "e2-standard-2"
+      name         = local.sandbox_node_pool
+      machine_type = local.machine_type
       max_count    = 3
       min_count    = 1
       image_type   = "COS_CONTAINERD"

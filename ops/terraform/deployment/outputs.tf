@@ -29,3 +29,11 @@ output "k8s_observability_service_account" {
 output "k8s_observability_service_account_name" {
   value = module.observability_workload_identity.k8s_service_account_name
 }
+
+output "main_node_pool" {
+  value = module.gke.node_pools_names[0]
+}
+
+output "sandbox_node_pool" {
+  value = module.gke.node_pools_names[1]
+}
