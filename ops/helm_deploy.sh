@@ -10,8 +10,8 @@ gcloud container clusters get-credentials "${CLUSTER_NAME}" --zone "${GCP_ZONE}"
 # Upgrade Observability Release
 # ======================================================================================================================
 envsubst < ops/helm/observability-stack/x-values-tmp.yaml > ops/helm/observability-stack/values.yaml
-#helm dependency update ops/helm/observability-stack
-#helm upgrade "${OBSERVABILITY_RELEASE}" ops/helm/observability-stack --install --namespace="${OBSERVABILITY_NAMESPACE}"
+helm dependency update ops/helm/observability-stack
+helm upgrade "${OBSERVABILITY_RELEASE}" ops/helm/observability-stack --install --namespace="${OBSERVABILITY_NAMESPACE}"
 
 # Upgrade Application Release
 # ======================================================================================================================    

@@ -7,8 +7,9 @@
 
 nameOverride: ""
 fullnameOverride: ""
-loggerConfigUse: serilog
-otelLogLevel: debug
+loggerConfigUse: "serilog"
+otelLogLevel: "debug"
+otelCollectorEndpoint: "http://otel-collector.observability:4318"
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
@@ -16,9 +17,8 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: env-dev-e871111f
+  name: dev-140891-app
 appNamespace: app
-observabilityNamespace: observability
   
 imagePullSecrets: []
 resources: {}
@@ -34,7 +34,8 @@ securityContext:
   capabilities:
     drop: [ "ALL" ]
 
-nodeSelector: {}
+nodeSelector:
+  node_pool: dev-140891-main-pool
 tolerations: []
 affinity: {}
 
@@ -48,10 +49,8 @@ webapi:
     repository: gcr.io/paul-soladoye/observability
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.0.3
+    tag: 1.0.4.4
     env:
-      - name: OTEL_SERVICE_NAME
-        value: sample_web_api
       - name: OpenTelemetry__ServiceName
         value: sample_web_api
   
@@ -73,10 +72,8 @@ worker:
   image:
     repository: gcr.io/paul-soladoye/observability
     pullPolicy: IfNotPresent
-    tag: 1.0.3
+    tag: 1.0.4.4
     env:
-      - name: OTEL_SERVICE_NAME
-        value: sample_worker
       - name: OpenTelemetry__ServiceName
         value: sample_worker
     workingDir: /app/worker

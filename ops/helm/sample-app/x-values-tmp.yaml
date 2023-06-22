@@ -7,8 +7,9 @@
 
 nameOverride: ""
 fullnameOverride: ""
-loggerConfigUse: serilog
-otelLogLevel: debug
+loggerConfigUse: "serilog"
+otelLogLevel: "debug"
+otelCollectorEndpoint: "http://otel-collector.${OBSERVABILITY_NAMESPACE}:4318"
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
@@ -16,9 +17,8 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ${K8S_SERVICE_ACCOUNT_NAME}
+  name: ${K8S_APP_SERVICE_ACCOUNT_NAME}
 appNamespace: ${APPLICATION_NAMESPACE}
-observabilityNamespace: ${OBSERVABILITY_NAMESPACE}
   
 imagePullSecrets: []
 resources: {}
@@ -34,7 +34,8 @@ securityContext:
   capabilities:
     drop: [ "ALL" ]
 
-nodeSelector: {}
+nodeSelector:
+  node_pool: ${MAIN_NODE_POOL}
 tolerations: []
 affinity: {}
 
@@ -50,8 +51,6 @@ webapi:
     # Overrides the image tag whose default is the chart appVersion.
     tag: ${IMAGE_VERSION}
     env:
-      - name: OTEL_SERVICE_NAME
-        value: sample_web_api
       - name: OpenTelemetry__ServiceName
         value: sample_web_api
   
@@ -75,8 +74,6 @@ worker:
     pullPolicy: IfNotPresent
     tag: ${IMAGE_VERSION}
     env:
-      - name: OTEL_SERVICE_NAME
-        value: sample_worker
       - name: OpenTelemetry__ServiceName
         value: sample_worker
     workingDir: /app/worker

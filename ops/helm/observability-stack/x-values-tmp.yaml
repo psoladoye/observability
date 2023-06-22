@@ -3,15 +3,25 @@
 grafana:
   enabled: true
   namespaceOverride: ${OBSERVABILITY_NAMESPACE}
+  adminUser: admin
+  adminPassword: admin
+  testFramework:
+    enabled: false
   serviceAccount:
+    create: false
+    name: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT_NAME}
     annotations:
       iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
   nodeSelector:
-    sandbox.gke.io/runtime: gvisor
+    node_pool: ${SANDBOX_NODE_POOL}
+#    sandbox.gke.io/runtime: gvisor
   tolerations:
-    - key: sandbox.gke.io/runtime
-      value: gvisor
-      effect: NoSchedule
+#    - key: sandbox.gke.io/runtime
+#      value: gvisor
+#      effect: NoSchedule'
+  env:
+    GF_AUTH_ANONYMOUS_ENABLED: true
+    GF_LOG_LEVEL: debug
   service:
     port: 3000
   datasources:
@@ -28,21 +38,31 @@ grafana:
         - name: Loki
           access: proxy
           type: loki
-          url: http://loki:3100
+          url: http://loki-gateway
           editable: true
+          jsonData:
+            derivedFields:
+              - datasourceUid: tempo
+                matcherRegex: '"traceid"\s*:\s*"(.*?)"'
+                name: TraceID
+                url: '$${__value.raw}'
 
         - name: Tempo
           access: proxy
+          uid: tempo
           type: tempo
-          url: http://tempo:3200
+          url: http://tempo.observability:3100
           editable: true
     
 
 # opentelemetry-collector
 # ======================================================================================================================
 opentelemetry-collector:
+  fullnameOverride: "otel-collector"
   enabled: true
   serviceAccount:
+    create: false
+    name: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT_NAME}
     annotations:
       iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
   podSecurityContext:
@@ -58,11 +78,13 @@ opentelemetry-collector:
     seccompProfile:
       type: RuntimeDefault
   nodeSelector:
-    sandbox.gke.io/runtime: gvisor
+    node_pool: ${SANDBOX_NODE_POOL}
+#    sandbox.gke.io/runtime: gvisor
   tolerations:
-    - key: sandbox.gke.io/runtime
-      value: gvisor
-      effect: NoSchedule
+#    - key: sandbox.gke.io/runtime
+#      value: gvisor
+#      effect: NoSchedule
+  mode: deployment
   config:
     connectors:
       forward:
@@ -80,24 +102,40 @@ opentelemetry-collector:
         protocols:
           http:
             endpoint: 0.0.0.0:4318
+    exporters:
+      googlecloud:
+        log:
+          default_log_name: "otel-exporter"
+            
+      loki:
+        endpoint: http://loki-gateway/loki/api/v1/push
+      
+      otlp/tempo:
+        endpoint: tempo.observability:4317
+        tls:
+          insecure: true
+
     service:
       pipelines:
         traces:
           receivers: [ otlp ]
-          processors: [ memory_limiter, batch ]
-          exporters: [ logging ]
+          processors: [ batch ]
+#          processors: [ memory_limiter, batch ]
+          exporters: [ logging, otlp/tempo, googlecloud ]
         metrics:
           receivers: [ otlp ]
           processors: [ batch ]
           exporters: [ logging ]
         logs:
           receivers: [ otlp ]
-          processors: [ memory_limiter, batch ]
-          exporters: [ logging ]
+          processors: [ batch ]
+#          processors: [ memory_limiter, batch ]
+          exporters: [ logging, loki, forward ]
         logs/gcp:
           receivers: [ forward ]
-          processors: [ memory_limiter, batch, resourcedetection ]
-          exporters: [ logging ]
+#          processors: [ memory_limiter, batch, resourcedetection ]
+          processors: [ batch ]
+          exporters: [ logging, googlecloud ]
 
       telemetry:
         logs:
@@ -116,31 +154,78 @@ opentelemetry-collector:
 # tempo
 # ======================================================================================================================
 tempo:
-  enabled: false
+  enabled: true
+  fullnameOverride: tempo
+  tempo:
+    receivers:
+      otlp:
+        protocols:
+          http:
+          grpc:
+#    storage:
+#      trace:
+#        backend: gcs
+#        gcs:
+#          bucket_name: tempo
+    server:
+      http_listen_port: 3100
+    securityContext: {}
+#      readOnlyRootFilesystem: true
+#      allowPrivilegeEscalation: false
+#      capabilities:
+#        drop:
+#          - ALL
+#      seccompProfile:
+#        type: RuntimeDefault
   serviceAccount:
+    create: false
+    name: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT_NAME}
     annotations:
       iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
+  securityContext: {}
+#    runAsUser: 65532
+#    runAsGroup: 65532
+#    fsGroup: 65532
+#    runAsNonRoot: true
   nodeSelector:
-    sandbox.gke.io/runtime: gvisor
+    node_pool: ${SANDBOX_NODE_POOL}
+#    sandbox.gke.io/runtime: gvisor
   tolerations:
-    - key: sandbox.gke.io/runtime
-      value: gvisor
-      effect: NoSchedule
+#    - key: sandbox.gke.io/runtime
+#      value: gvisor
+#      effect: NoSchedule
 
 # loki
 # ======================================================================================================================
 loki:
   enabled: true
+  test:
+    enabled: false
   serviceAccount:
+    create: false
+    name: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT_NAME}
     annotations:
       iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
   loki:
     nodeSelector:
-      sandbox.gke.io/runtime: gvisor
+      node_pool: ${SANDBOX_NODE_POOL}
+#      sandbox.gke.io/runtime: gvisor
     tolerations:
-      - key: sandbox.gke.io/runtime
-        value: gvisor
-        effect: NoSchedule
+#      - key: sandbox.gke.io/runtime
+#        value: gvisor
+#        effect: NoSchedule
+    auth_enabled: false
+  monitoring:
+    lokiCanary:
+      enabled: false
+    dashboards:
+      enabled: false
+    serviceMonitor:
+      enabled: false
+    selfMonitoring:
+      enabled: false
+    rules:
+      enabled: false
 
 # prometheus
 # ======================================================================================================================
@@ -155,7 +240,9 @@ prometheus:
   prometheus-pushgateway: 
     enabled: false
   serviceAccounts:
-    server: 
+    server:
+      create: false
+      name: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT_NAME}
       annotations:
         iam.gke.io/gcp-service-account: ${K8S_OBSERVABILITY_SERVICE_ACCOUNT}
   server:
@@ -167,8 +254,12 @@ prometheus:
       seccompProfile:
         type: RuntimeDefault
     nodeSelector:
-      sandbox.gke.io/runtime: gvisor
+      node_pool: ${SANDBOX_NODE_POOL}
+#      sandbox.gke.io/runtime: gvisor
     tolerations:
-      - key: sandbox.gke.io/runtime
-        value: gvisor
-        effect: NoSchedule
+#      - key: sandbox.gke.io/runtime
+#        value: gvisor
+#        effect: NoSchedule
+
+test:
+  enabled: false
