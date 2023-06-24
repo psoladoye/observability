@@ -20,7 +20,34 @@ processors:
       - key: gcp.log_name
         action: insert
         from_attribute: Application
-        
+      - key: requestUrl
+        action: upsert
+        from_attribute: RequestPath
+      - key: status
+        action: upsert
+        from_attribute: StatusCode
+  
+  transform/gcp:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+#          - merge_maps(cache["body"], body.string, "upsert")
+          - set(cache["message"], body.string)
+          - set(body, ParseJSON("{}"))
+          - set(body["message"], cache["message"])
+          - set(body["properties"], attributes)
+#          - set(body["httpRequest"], ParseJSON("{}"))
+#          - set(body["httpRequest"]["requestMethod"], attributes["RequestMethod"])
+#          - set(cache["body"], body.string)
+#          - set(cache["body"], body.string)
+#          - set(body, attributes)
+#          - set(body["message"], cache["body"])
+#          - set(body["properties"], attributes)
+#          - set(attributes["status"], attributes["StatusCode"])
+          - set(attributes["gcp.http_request"], ParseJSON("{}"))
+#          - set(attributes["gcp.source_location"], attributes)
+#          - set(attributes["gcp.http_request"]["requestMethod"], attribute["RequestMethod"])
 #  logstransform/gcp:
 #    operators:
 #      - type: regex_parser
@@ -72,8 +99,8 @@ service:
       exporters: [ loki, forward ]
     logs/gcp:
       receivers: [ forward ]
-      processors: [ memory_limiter, batch, resourcedetection, attributes/gcp ]
-      exporters: [ googlecloud ]
+      processors: [ memory_limiter, batch, resourcedetection, attributes/gcp, transform/gcp ]
+      exporters: [ loki, googlecloud ]
   
   telemetry:
     logs:

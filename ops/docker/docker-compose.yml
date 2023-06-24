@@ -95,7 +95,7 @@ services:
   # Open-telemetry Collector
   # =============================================================================================================
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.79.0
+    image: otel/opentelemetry-collector-contrib:0.80.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/etc/otel/key.json
