@@ -1,5 +1,5 @@
 #https://devblogs.microsoft.com/dotnet/improving-multiplatform-container-support/
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0.304 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0.305 AS build
 ARG TARGETARCH
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN dotnet build -c Release
 FROM build AS publish
 RUN dotnet publish -c Release
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0.7 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:7.0.8 AS final
 WORKDIR /app
 
 COPY --from=publish /app/src/web/bin/Release/net7.0/publish ./web/
