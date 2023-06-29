@@ -366,3 +366,6 @@ ops/docker/tempo-data/
 # Helm
 **/**/*.tgz
 
+# Application
+Properties/
+
