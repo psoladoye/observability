@@ -3,19 +3,18 @@ using monitoring;
 using Serilog;
 using worker;
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .CreateBootstrapLogger();
-
-var builder = Host.CreateDefaultBuilder(args);
-
 var configurationRoot = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
-configurationRoot.Providers.ToList().ForEach(x => Log.Information($"Yes: {x.GetType()}, {x.ToString()}"));
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configurationRoot)
+    .Enrich.FromLogContext()
+    .CreateBootstrapLogger();
+
+var builder = Host.CreateDefaultBuilder(args);
 var loggerConfig = configurationRoot.GetSection(LoggerConfigOptions.LoggerConfig)
     .Get<LoggerConfigOptions>() ?? new LoggerConfigOptions();
 

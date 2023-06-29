@@ -2,7 +2,15 @@ using monitoring;
 using Serilog;
 using web;
 
+
+var configurationRoot = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
+
 Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configurationRoot)
     .Enrich.FromLogContext()
     .CreateBootstrapLogger();
 

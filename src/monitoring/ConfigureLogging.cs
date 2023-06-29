@@ -63,7 +63,14 @@ public static class ConfigureLogging
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
-            // .Enrich.WithSpan()
+                .Enrich.WithSpan(new SpanOptions
+                {
+                    IncludeOperationName = true
+                })
+                .Enrich.WithOpenTelemetryLogEnricher(opts =>
+                {
+                    opts.ServiceName = otlpOptions.ServiceName;
+                })
                 .WriteTo.OpenTelemetry(opts =>
                 {
                     opts.Endpoint = $"{otlpOptions.HttpProtobuf}/v1/logs";

@@ -1,4 +1,5 @@
 using common;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.OpenApi.Models;
 using monitoring;
 using Serilog;
@@ -45,7 +46,19 @@ public class Startup
 
         if (loggerConfig.Use == "serilog")
         {
-            app.UseSerilogRequestLogging();
+            app.UseSerilogRequestLogging(opts =>
+            {
+                opts.IncludeQueryInRequestPath = true;
+                // Attach additional properties to the request completion event
+                opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+                {
+                    diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+                    diagnosticContext.Set("RequestUrl", httpContext.Request.GetDisplayUrl());
+                    diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+                    diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress);
+                    diagnosticContext.Set("ServerIpAddress", httpContext.Connection.LocalIpAddress);
+                };
+            });
         }
 
         app.UseRouting();
