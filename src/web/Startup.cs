@@ -55,8 +55,8 @@ public class Startup
                     diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
                     diagnosticContext.Set("RequestUrl", httpContext.Request.GetDisplayUrl());
                     diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
-                    diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress);
-                    diagnosticContext.Set("ServerIpAddress", httpContext.Connection.LocalIpAddress);
+                    diagnosticContext.Set("RemoteIp", httpContext.Connection.RemoteIpAddress?.ToString());
+                    diagnosticContext.Set("ServerIp", httpContext.Connection.LocalIpAddress?.ToString());
                 };
             });
         }

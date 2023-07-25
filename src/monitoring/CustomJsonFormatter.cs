@@ -79,16 +79,16 @@ public class CustomJsonFormatter : ITextFormatter
                     logEntry.HttpRequest.Protocol = GetString(logEvent.Properties["RequestScheme"]);
                 }
                 
-                else if (property.Key.Equals("RemoteIpAddress", StringComparison.OrdinalIgnoreCase))
+                else if (property.Key.Equals("RemoteIp", StringComparison.OrdinalIgnoreCase))
                 {
                     logEntry.HttpRequest ??= new HttpRequest();
-                    logEntry.HttpRequest.RemoteIp = GetString(logEvent.Properties["RemoteIpAddress"]);
+                    logEntry.HttpRequest.RemoteIp = GetString(logEvent.Properties["RemoteIp"]);
                 }
                 
-                else if (property.Key.Equals("ServerIpAddress", StringComparison.OrdinalIgnoreCase))
+                else if (property.Key.Equals("ServerIp", StringComparison.OrdinalIgnoreCase))
                 {
                     logEntry.HttpRequest ??= new HttpRequest();
-                    logEntry.HttpRequest.ServerIp = GetString(logEvent.Properties["ServerIpAddress"]);
+                    logEntry.HttpRequest.ServerIp = GetString(logEvent.Properties["ServerIp"]);
                 }
                 
                 else if (property.Key.Equals("StatusCode", StringComparison.OrdinalIgnoreCase))

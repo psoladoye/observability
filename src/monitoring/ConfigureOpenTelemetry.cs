@@ -12,7 +12,7 @@ public static class ConfigureOpenTelemetry
     public static IServiceCollection AddOpenTelemetry(this IServiceCollection services,
         IConfiguration configuration)
     {
-        var otlpOptions = configuration.GetSection(OtlpOptions.Oltp)
+        var otlpOptions = configuration.GetSection(OtlpOptions.Otel)
             .Get<OtlpOptions>() ?? new OtlpOptions();
 
         services.AddOpenTelemetry()

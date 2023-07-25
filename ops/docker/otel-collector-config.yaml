@@ -15,44 +15,39 @@ processors:
     timeout: 10s
     override: false
     
-  attributes/gcp:
-    actions:
-      - key: gcp.log_name
-        action: insert
-        from_attribute: Application
-      - key: requestUrl
-        action: upsert
-        from_attribute: RequestPath
-      - key: status
-        action: upsert
-        from_attribute: StatusCode
+#  attributes/gcp:
+#    actions:
+#      - key: gcp.log_name
+#        action: insert
+#        from_attribute: Application
   
   transform/gcp:
     error_mode: ignore
     log_statements:
       - context: log
         statements:
-#          - merge_maps(cache["body"], body.string, "upsert")
           - set(cache["message"], body.string)
+          - set(cache["logName"], attributes["Application"])
+#          - set(cache["httpRequest"], attributes["HttpRequest"])
           - set(body, ParseJSON("{}"))
           - set(body["message"], cache["message"])
           - set(body["properties"], attributes)
-#          - set(body["httpRequest"], ParseJSON("{}"))
-#          - set(body["httpRequest"]["requestMethod"], attributes["RequestMethod"])
-#          - set(cache["body"], body.string)
-#          - set(cache["body"], body.string)
-#          - set(body, attributes)
-#          - set(body["message"], cache["body"])
-#          - set(body["properties"], attributes)
-#          - set(attributes["status"], attributes["StatusCode"])
+          - set(attributes, ParseJSON("{}"))
+          - set(attributes["gcp.log_name"], cache["logName"])
+#          - set(attributes["gcp.http_request"], cache["httpRequest"])
+#          - set(cache["gcp.http_request"], ParseJSON("{}"))
+#          - set(cache["gcp.http_request"]["requestMethod"], body["properties"]["RequestMethod"])
+#          - set(cache["gcp.http_request"]["requestUrl"], body["properties"]["RequestUrl"])
+#          - set(cache["gcp.http_request"]["status"], body["properties"]["StatusCode"])
+#          - set(cache["gcp.http_request"]["serverIp"], body["properties"]["ServerIp"])
+#          - set(cache["gcp.http_request"]["remoteIp"], body["properties"]["RemoteIp"])
+#          - set(attributes["gcp.http_request"], cache["gcp.http_request"].string)
           - set(attributes["gcp.http_request"], ParseJSON("{}"))
-#          - set(attributes["gcp.source_location"], attributes)
-#          - set(attributes["gcp.http_request"]["requestMethod"], attribute["RequestMethod"])
-#  logstransform/gcp:
-#    operators:
-#      - type: regex_parser
-#        regex: '(?m)^(?P<remoteIp>[^ ]*) (?P<host>[^ ]*) (?P<user>[^ ]*) \[(?P<time>[^\]]*)\] "(?P<requestMethod>\S+)(?: +(?P<requestUrl>[^\"]*?)(?: +(?P<protocol>\S+))?)?" (?P<status>[^ ]*) (?P<responseSize>[^ ]*)(?: "(?P<referer>[^\"]*)" "(?P<userAgent>[^\"]*)")?$'
-#        parse_to: attributes["gcp.http_request"]
+#          - set(attributes["gcp.http_request"]["requestMethod"], body["properties"]["RequestMethod"])
+#          - set(attributes["gcp.http_request"]["requestUrl"], body["properties"]["RequestUrl"])
+#          - set(attributes["gcp.http_request"]["status"], body["properties"]["StatusCode"])
+#          - set(attributes["gcp.http_request"]["serverIp"], body["properties"]["ServerIp"])
+#          - set(attributes["gcp.http_request"]["remoteIp"], body["properties"]["RemoteIp"])
         
 exporters:
   otlp/tempo:
@@ -99,7 +94,7 @@ service:
       exporters: [ loki, forward ]
     logs/gcp:
       receivers: [ forward ]
-      processors: [ memory_limiter, batch, resourcedetection, attributes/gcp, transform/gcp ]
+      processors: [ memory_limiter, batch, resourcedetection, transform/gcp ]
       exporters: [ loki, googlecloud ]
   
   telemetry:

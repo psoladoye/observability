@@ -27,7 +27,7 @@ public static class ConfigureLogging
                 opt.IncludeFormattedMessage = true;
             });
             
-            var otlpOptions = context.Configuration.GetSection(OtlpOptions.Oltp)
+            var otlpOptions = context.Configuration.GetSection(OtlpOptions.Otel)
                 .Get<OtlpOptions>() ?? new OtlpOptions();
             
             builder.AddOpenTelemetry(options =>
@@ -56,7 +56,7 @@ public static class ConfigureLogging
     {
         hostBuilder.UseSerilog((context, services, config) =>
         {
-            var otlpOptions = context.Configuration.GetSection(OtlpOptions.Oltp)
+            var otlpOptions = context.Configuration.GetSection(OtlpOptions.Otel)
                 .Get<OtlpOptions>() ?? new OtlpOptions();
 
             config

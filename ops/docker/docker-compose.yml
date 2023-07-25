@@ -16,9 +16,6 @@ services:
       - LoggerConfig__Use=serilog
     env_file:
       - .env
-#      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account.json #https://cloud.google.com/run/docs/testing/local#docker-with-gcp-access
-#    volumes:
-#      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service-account.json:ro
     depends_on:
       - pubsub
 
@@ -44,7 +41,7 @@ services:
   # Loki
   # =============================================================================================================
   loki:
-    image: grafana/loki:2.8.0
+    image: grafana/loki:2.8.1
     ports: 
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
@@ -55,7 +52,7 @@ services:
   # Promtail
   # =============================================================================================================
   promtail:
-    image: grafana/promtail:2.8.0
+    image: grafana/promtail:2.8.1
     volumes:
       - /var/log:/var/log
     command: -config.file=/etc/promtail/config.yml
@@ -95,7 +92,7 @@ services:
   # Open-telemetry Collector
   # =============================================================================================================
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.80.0
+    image: otel/opentelemetry-collector-contrib:0.81.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/etc/otel/key.json
@@ -126,13 +123,26 @@ services:
   # =============================================================================================================
   # RabbitMQ
   # =============================================================================================================
-  pubsub:
+  pubsub-rmq:
     image: rabbitmq:3.12-management
     ports:
       - "5672:5672"
       - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+  
+  # =============================================================================================================
+  # GCP PubSub
+  # =============================================================================================================
+  pubsub-gcp:
+    build:
+      context: ./google
+      dockerfile: Dockerfile
+    environment:
+      - PROJECT_ID=${PROJECT_ID}
+    ports:
+      - "8085:8085"
+    profiles: [ "ignore" ]
 
 volumes:
   prometheus_data: {}
@@ -140,3 +150,15 @@ volumes:
   tempo_data: {}
   loki_data: {}
   rabbitmq_data: {}
+  
+  
+#  initdb:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    working_dir: /app/VAS.Api
+#    entrypoint: [ "dotnet", "VAS.Api.dll", "--ef-migrate" ]
+#    env_file: .env
+#    depends_on:
+#      db:
+#        condition: service_healthy
