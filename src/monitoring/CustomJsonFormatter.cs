@@ -38,6 +38,12 @@ public class CustomJsonFormatter : ITextFormatter
             };
             
             var properties = new Dictionary<string, object?>();
+
+            if (logEvent.Exception != null)
+            {
+                properties.Add("Exception", logEvent.Exception.ToString());
+            }
+            
             foreach (var property in logEvent.Properties)
             {
                 if (property.Key.Equals("TraceId", StringComparison.OrdinalIgnoreCase))
@@ -95,6 +101,37 @@ public class CustomJsonFormatter : ITextFormatter
                 {
                     logEntry.HttpRequest ??= new HttpRequest();
                     logEntry.HttpRequest.Status = GetInt(logEvent.Properties["StatusCode"]);
+                }
+                
+                else if (property.Key.Equals("ResponseSize", StringComparison.OrdinalIgnoreCase))
+                {
+                    logEntry.HttpRequest ??= new HttpRequest();
+                    logEntry.HttpRequest.ResponseSize = GetInt(logEvent.Properties["ResponseSize"]);
+                }
+
+                else if (property.Key.Equals("RequestSize", StringComparison.OrdinalIgnoreCase))
+                {
+                    logEntry.HttpRequest ??= new HttpRequest();
+                    logEntry.HttpRequest.RequestSize = GetInt(logEvent.Properties["RequestSize"]);
+                }
+
+                else if (property.Key.Equals("Elapsed", StringComparison.OrdinalIgnoreCase))
+                {
+                    var latency = GetDouble(logEvent.Properties["Elapsed"])/1000;
+                    logEntry.HttpRequest ??= new HttpRequest();
+                    logEntry.HttpRequest.Latency = $"{latency}s";
+                }
+
+                else if (property.Key.Equals("UserAgent", StringComparison.OrdinalIgnoreCase))
+                {
+                    logEntry.HttpRequest ??= new HttpRequest();
+                    logEntry.HttpRequest.UserAgent = GetString(logEvent.Properties["UserAgent"]);
+                }
+
+                else if (property.Key.Equals("Referer", StringComparison.OrdinalIgnoreCase))
+                {
+                    logEntry.HttpRequest ??= new HttpRequest();
+                    logEntry.HttpRequest.Referer = GetString(logEvent.Properties["Referer"]);
                 }
 
                 else
@@ -179,6 +216,8 @@ public class CustomJsonFormatter : ITextFormatter
     private static bool GetBoolean(LogEventPropertyValue v) => (v as ScalarValue)?.Value is true;
 
     private static int GetInt(LogEventPropertyValue v) => Convert.ToInt32((v as ScalarValue)?.Value);
+    
+    private static double GetDouble(LogEventPropertyValue v) => Convert.ToDouble((v as ScalarValue)?.Value);
 
     private static string MapLogLevel(LogEventLevel level)
     {
@@ -215,7 +254,7 @@ internal class HttpRequest
     [JsonProperty(PropertyName = "userAgent")]
     public string? UserAgent { get; set; }
     
-    [JsonProperty(PropertyName = "severIp")]
+    [JsonProperty(PropertyName = "serverIp")]
     public string? ServerIp { get; set; }
     
     [JsonProperty(PropertyName = "remoteIp")]
@@ -223,6 +262,18 @@ internal class HttpRequest
     
     [JsonProperty(PropertyName = "protocol")]
     public string? Protocol { get; set; }
+    
+    [JsonProperty(PropertyName = "latency")]
+    public string? Latency { get; set; }
+
+    [JsonProperty(PropertyName = "responseSize")]
+    public int? ResponseSize { get; set; }
+
+    [JsonProperty(PropertyName = "requestSize")]
+    public int? RequestSize { get; set; }
+
+    [JsonProperty(PropertyName = "referer")]
+    public string? Referer { get; set; }
 }
 
 internal class LogEntry

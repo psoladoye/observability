@@ -9,9 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.0.0" />
+        <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.0" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
     </ItemGroup>
 
     <ItemGroup>

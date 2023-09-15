@@ -41,7 +41,7 @@ services:
   # Loki
   # =============================================================================================================
   loki:
-    image: grafana/loki:2.8.1
+    image: grafana/loki:2.8.3
     ports: 
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
@@ -52,7 +52,7 @@ services:
   # Promtail
   # =============================================================================================================
   promtail:
-    image: grafana/promtail:2.8.1
+    image: grafana/promtail:2.8.3
     volumes:
       - /var/log:/var/log
     command: -config.file=/etc/promtail/config.yml
@@ -92,7 +92,7 @@ services:
   # Open-telemetry Collector
   # =============================================================================================================
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.81.0
+    image: otel/opentelemetry-collector-contrib:0.82.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/etc/otel/key.json
