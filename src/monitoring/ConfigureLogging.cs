@@ -42,7 +42,7 @@ public static class ConfigureLogging
                 options.IncludeFormattedMessage = true;
                 options.IncludeScopes = true;
                 
-                options.AddOtlpExporter(opt =>
+                options.AddOtlpExporter((opt, _) =>
                 {
                     opt.Endpoint = new Uri($"{otlpOptions.HttpProtobuf}/v1/logs");
                     opt.Protocol = OtlpExportProtocol.HttpProtobuf;

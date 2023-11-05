@@ -2,10 +2,14 @@ using monitoring;
 using Serilog;
 using web;
 
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+if (string.IsNullOrEmpty(environment))
+{
+    throw new Exception("Application failed to start. Environment not specified");
+}
 
 var configurationRoot = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
@@ -47,8 +51,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal("Host terminated unexpectedly:  {@Exception}", ex);
-    Console.WriteLine($"Error {ex}");
+    Log.Fatal(ex, "Host terminated unexpectedly");
 }
 finally
 {

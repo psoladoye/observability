@@ -14,40 +14,6 @@ processors:
     detectors: [ gcp ]
     timeout: 10s
     override: false
-    
-#  attributes/gcp:
-#    actions:
-#      - key: gcp.log_name
-#        action: insert
-#        from_attribute: Application
-  
-  transform/gcp:
-    error_mode: ignore
-    log_statements:
-      - context: log
-        statements:
-          - set(cache["message"], body.string)
-          - set(cache["logName"], attributes["Application"])
-#          - set(cache["httpRequest"], attributes["HttpRequest"])
-          - set(body, ParseJSON("{}"))
-          - set(body["message"], cache["message"])
-          - set(body["properties"], attributes)
-          - set(attributes, ParseJSON("{}"))
-          - set(attributes["gcp.log_name"], cache["logName"])
-#          - set(attributes["gcp.http_request"], cache["httpRequest"])
-#          - set(cache["gcp.http_request"], ParseJSON("{}"))
-#          - set(cache["gcp.http_request"]["requestMethod"], body["properties"]["RequestMethod"])
-#          - set(cache["gcp.http_request"]["requestUrl"], body["properties"]["RequestUrl"])
-#          - set(cache["gcp.http_request"]["status"], body["properties"]["StatusCode"])
-#          - set(cache["gcp.http_request"]["serverIp"], body["properties"]["ServerIp"])
-#          - set(cache["gcp.http_request"]["remoteIp"], body["properties"]["RemoteIp"])
-#          - set(attributes["gcp.http_request"], cache["gcp.http_request"].string)
-          - set(attributes["gcp.http_request"], ParseJSON("{}"))
-#          - set(attributes["gcp.http_request"]["requestMethod"], body["properties"]["RequestMethod"])
-#          - set(attributes["gcp.http_request"]["requestUrl"], body["properties"]["RequestUrl"])
-#          - set(attributes["gcp.http_request"]["status"], body["properties"]["StatusCode"])
-#          - set(attributes["gcp.http_request"]["serverIp"], body["properties"]["ServerIp"])
-#          - set(attributes["gcp.http_request"]["remoteIp"], body["properties"]["RemoteIp"])
         
 exporters:
   otlp/tempo:
@@ -63,13 +29,6 @@ exporters:
     
   prometheus:
     endpoint: 0.0.0.0:8889
-    
-  googlecloud:
-    log:
-      default_log_name: "opentelemetry.io/collector-exported-log"
-
-connectors:
-  forward:
       
 extensions:
   health_check:
@@ -83,19 +42,15 @@ service:
     traces:
       receivers: [ otlp ]
       processors: [ memory_limiter, batch ]
-      exporters: [ otlp/tempo, googlecloud ]
+      exporters: [ otlp/tempo ]
     metrics:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ prometheus, googlecloud ]
+      exporters: [ prometheus ]
     logs:
       receivers: [ otlp ]
       processors: [ memory_limiter, batch ]
-      exporters: [ loki, forward ]
-    logs/gcp:
-      receivers: [ forward ]
-      processors: [ memory_limiter, batch, resourcedetection, transform/gcp ]
-      exporters: [ loki, googlecloud ]
+      exporters: [ loki ]
   
   telemetry:
     logs:

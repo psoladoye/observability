@@ -16,8 +16,6 @@ services:
       - LoggerConfig__Use=serilog
     env_file:
       - .env
-    depends_on:
-      - pubsub
 
   # =============================================================================================================
   # Worker
@@ -34,19 +32,18 @@ services:
       - LoggerConfig__Use=serilog
     working_dir: /app/worker
     entrypoint: [dotnet, worker.dll]
-    depends_on:
-      - pubsub
   
   # =============================================================================================================
   # Loki
   # =============================================================================================================
   loki:
-    image: grafana/loki:2.8.3
+    image: grafana/loki:latest
     ports: 
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki_data:/data/loki
+    profiles: ["observability"]
     
   # =============================================================================================================
   # Promtail
@@ -72,7 +69,7 @@ services:
     volumes:
       - ./tempo.yaml:/etc/tempo.yaml
       - tempo_data:/tmp/tempo
-  
+    profiles: ["observability"]
 
   # =============================================================================================================
   # Grafana
@@ -87,12 +84,13 @@ services:
       - ./grafana/dashboards:/etc/dashboards
     environment:
       - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    profiles: ["observability"]
   
   # =============================================================================================================
   # Open-telemetry Collector
   # =============================================================================================================
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.82.0
+    image: otelcol-custom:v0.0.3
     command: ["--config=/etc/otel-collector-config.yaml"]
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/etc/otel/key.json
@@ -107,6 +105,7 @@ services:
 #      - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP http receiver
       - "55679:55679" # zpages extension
+    profiles: ["observability"]
         
   # =============================================================================================================
   # Prometheus
@@ -119,6 +118,7 @@ services:
       ports:
         - "9090:9090"
       command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
+      profiles: ["observability"]
       
   # =============================================================================================================
   # RabbitMQ
@@ -130,6 +130,7 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    profiles: ["messaging"]
   
   # =============================================================================================================
   # GCP PubSub
@@ -150,15 +151,3 @@ volumes:
   tempo_data: {}
   loki_data: {}
   rabbitmq_data: {}
-  
-  
-#  initdb:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    working_dir: /app/VAS.Api
-#    entrypoint: [ "dotnet", "VAS.Api.dll", "--ef-migrate" ]
-#    env_file: .env
-#    depends_on:
-#      db:
-#        condition: service_healthy
